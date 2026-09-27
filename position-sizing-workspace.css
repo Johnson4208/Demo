@@ -1,0 +1,179 @@
+.feature-view-risk .risk-method-parameter {
+  display: grid;
+  grid-template-columns: minmax(220px, 330px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: end;
+  margin-top: 11px;
+  padding: 12px;
+  border: 1px solid #d9e5f2;
+  border-radius: 11px;
+  background: #f8fbff;
+}
+
+.feature-view-risk .risk-method-parameter[hidden] {
+  display: none !important;
+}
+
+.feature-view-risk #tradeRiskPctField[hidden] {
+  display: none !important;
+}
+
+.feature-view-risk .risk-method-parameter label,
+.feature-view-risk .risk-method-parameter label > span {
+  display: flex;
+}
+
+.feature-view-risk .risk-method-parameter label {
+  flex-direction: column;
+  gap: 6px;
+  color: #304967;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.feature-view-risk .risk-method-parameter label > span {
+  align-items: center;
+  gap: 5px;
+}
+
+.feature-view-risk .risk-method-parameter input {
+  height: 42px !important;
+  margin: 0 !important;
+  font-size: 13px !important;
+}
+
+.feature-view-risk .risk-method-parameter p {
+  margin: 0 0 6px;
+  color: #687f99;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.feature-view-risk .risk-method-list[role="radiogroup"] .risk-method-item.selected {
+  border-color: #3279d8;
+  background: #eaf3ff;
+  box-shadow: inset 3px 0 0 #1f6ed4, 0 5px 16px rgba(38, 103, 182, .09);
+}
+
+.feature-view-risk .risk-method-list[role="radiogroup"] .risk-method-item.selected em {
+  background: #d6e9ff;
+  color: #145ead;
+}
+
+.feature-view-risk .risk-related-methods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e4eaf1;
+}
+
+.feature-view-risk .risk-related-methods > span {
+  grid-column: 1 / -1;
+  color: #7b899b;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+
+.feature-view-risk .risk-related-methods .risk-method-item {
+  background: #fafbfd;
+}
+
+.feature-view-risk .risk-related-methods .risk-method-item.active {
+  border-color: #d5a951;
+  background: #fff9ec;
+  box-shadow: inset 3px 0 0 #d39a2f;
+}
+
+.feature-view-risk .risk-sizing-method-note {
+  display: grid;
+  grid-template-columns: minmax(250px, .8fr) minmax(0, 1.2fr);
+  gap: 16px;
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid #d9e5f2;
+  border-radius: 12px;
+  background: #f5f9fe;
+}
+
+.feature-view-risk .risk-sizing-method-copy > span {
+  color: #4a74a5;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .07em;
+}
+
+.feature-view-risk .risk-sizing-method-copy h4 {
+  margin: 4px 0 5px;
+  color: #153b68;
+  font-size: 15px;
+}
+
+.feature-view-risk .risk-sizing-method-copy p,
+.feature-view-risk .risk-sizing-method-copy small {
+  display: block;
+  margin: 0;
+  color: #5f7590;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.feature-view-risk .risk-sizing-method-copy small {
+  margin-top: 6px;
+  color: #7b8797;
+}
+
+.feature-view-risk .risk-sizing-method-evidence {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.feature-view-risk .risk-sizing-method-evidence div {
+  padding: 9px;
+  border: 1px solid #e0e8f1;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.feature-view-risk .risk-sizing-method-evidence span,
+.feature-view-risk .risk-sizing-method-evidence b {
+  display: block;
+}
+
+.feature-view-risk .risk-sizing-method-evidence span {
+  color: #8290a2;
+  font-size: 9px;
+}
+
+.feature-view-risk .risk-sizing-method-evidence b {
+  margin-top: 3px;
+  color: #263f5f;
+  font-size: 11px;
+}
+
+.feature-view-risk .risk-sizing-method-note.no_positive_edge,
+.feature-view-risk .risk-sizing-method-note.unavailable {
+  border-color: #ead2a2;
+  background: #fffaf0;
+}
+
+@media (max-width: 900px) {
+  .feature-view-risk .risk-sizing-method-note {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .feature-view-risk .risk-method-parameter,
+  .feature-view-risk .risk-related-methods,
+  .feature-view-risk .risk-sizing-method-evidence {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-view-risk .risk-related-methods > span {
+    grid-column: auto;
+  }
+}

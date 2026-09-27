@@ -1,0 +1,65 @@
+/* SolvAI 40.0.2 — scoped Dashboard fixes for the Company Overview modes. */
+
+/* Keep the Summary details reachable without moving the persistent actions. */
+body[data-active-view="overview"][data-overview-mode="1"] #overviewCompactContent {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+  padding-bottom: 7px;
+  scrollbar-gutter: stable;
+  scrollbar-color: #aab8c9 transparent;
+  scrollbar-width: thin;
+}
+
+body[data-active-view="overview"][data-overview-mode="1"] #overviewCompactContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+body[data-active-view="overview"][data-overview-mode="1"] #overviewCompactContent::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #aab8c9;
+}
+
+/* Metrics replaces the assistant and uses the combined first two columns. */
+@media (min-width: 1181px) {
+  body[data-active-view="overview"][data-overview-mode="2"] .overview-command-grid {
+    grid-template-columns: 1.04fr 1fr .96fr !important;
+  }
+
+  body[data-active-view="overview"][data-overview-mode="2"] .overview-company-panel {
+    grid-column: 1 / span 2 !important;
+    grid-row: 1 !important;
+  }
+
+  body[data-active-view="overview"][data-overview-mode="2"] .overview-news-panel {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+  }
+}
+
+/* On the two-column shell, Metrics takes the whole row and News follows it. */
+@media (min-width: 821px) and (max-width: 1180px) {
+  body[data-active-view="overview"][data-overview-mode="2"] .overview-command-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body[data-active-view="overview"][data-overview-mode="2"] .overview-company-panel,
+  body[data-active-view="overview"][data-overview-mode="2"] .overview-news-panel {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+  }
+}
+
+/* Preserve the existing single-column order on compact layouts. */
+@media (max-width: 820px) {
+  body[data-active-view="overview"][data-overview-mode="2"] .overview-command-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  body[data-active-view="overview"][data-overview-mode="2"] .overview-company-panel,
+  body[data-active-view="overview"][data-overview-mode="2"] .overview-news-panel {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+}

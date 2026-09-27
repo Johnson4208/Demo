@@ -1,0 +1,592 @@
+/*
+ * Shared readability and responsive corrections for authentication,
+ * account security, and workspace administration. This file intentionally
+ * loads after the page-specific stylesheets so their structure is preserved.
+ */
+
+:where(.auth-page, .security-shell, .admin-sidebar, main) button,
+:where(.auth-page, .security-shell, .admin-sidebar, main) input,
+:where(.auth-page, .security-shell, .admin-sidebar, main) select {
+  font-family: inherit;
+}
+
+:where(.auth-page, .security-shell, .admin-sidebar, main) button:focus-visible,
+:where(.auth-page, .security-shell, .admin-sidebar, main) input:focus-visible,
+:where(.auth-page, .security-shell, .admin-sidebar, main) select:focus-visible,
+:where(.auth-page, .security-shell, .admin-sidebar, main) a:focus-visible {
+  outline: 3px solid rgba(47, 100, 229, 0.28);
+  outline-offset: 2px;
+}
+
+:where(.auth-page, .security-shell, main) :where(p, small, b, em, span, td, th) {
+  overflow-wrap: anywhere;
+}
+
+/* Sign in and registration */
+.auth-brand small,
+.auth-benefits small,
+.auth-trust small {
+  font-size: 11px;
+}
+
+.auth-kicker,
+.auth-field > span:first-child,
+.setup-note p,
+.auth-status,
+.auth-tabs button,
+.auth-submit,
+.auth-input input {
+  font-size: 12px;
+}
+
+.auth-intro,
+.auth-story-copy > p {
+  font-size: 14px;
+}
+
+.auth-input {
+  min-height: 50px;
+}
+
+.auth-input input {
+  min-height: 48px;
+}
+
+.password-toggle {
+  min-width: 48px;
+  min-height: 38px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.password-rule,
+.remember,
+.access-help,
+.auth-privacy {
+  font-size: 10px;
+}
+
+.auth-form-panel footer {
+  font-size: 9px;
+}
+
+/* Account security */
+.security-brand b,
+.back-link,
+.identity-card b,
+.security-notice,
+.security-card input,
+.security-card form button,
+.security-hero > div > p,
+.card-heading p {
+  font-size: 13px;
+}
+
+.security-brand small,
+.identity-card small,
+.security-card label small,
+.session-row small,
+.session-row em,
+.privacy-panel p {
+  font-size: 11px;
+}
+
+.eyebrow,
+.security-card label > span,
+.identity-card em,
+.current-chip,
+.session-row button {
+  font-size: 10px;
+}
+
+.security-card input {
+  min-height: 46px;
+  height: auto;
+  padding-block: 11px;
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.security-card form button {
+  min-height: 46px;
+  height: auto;
+  padding: 11px 14px;
+  font-family: inherit;
+  font-weight: 800;
+}
+
+.session-row b,
+.privacy-panel b {
+  font-size: 12px;
+}
+
+.session-row button {
+  min-height: 36px;
+  padding: 8px 11px;
+  font-family: inherit;
+  font-weight: 800;
+}
+
+.session-list {
+  scrollbar-gutter: stable;
+}
+
+.auth-textarea {
+  min-height: 86px;
+  align-items: flex-start;
+}
+
+.auth-textarea > svg {
+  margin-top: 15px;
+}
+
+.auth-textarea textarea {
+  width: 100%;
+  min-height: 82px;
+  resize: vertical;
+  border: 0;
+  outline: 0;
+  padding: 13px 12px;
+  background: transparent;
+  color: #152844;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.registration-consent {
+  margin: -2px 0 0;
+  color: #6f7f94;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* Administrator access center */
+.admin-stats {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.approval-card {
+  border-color: #d8e4f4;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.pending-chip {
+  background: #fff3db;
+  color: #8a5b0d;
+}
+
+.approval-list {
+  display: grid;
+  gap: 10px;
+}
+
+.approval-request {
+  display: grid;
+  grid-template-columns: minmax(190px, .95fr) minmax(230px, 1.35fr) 120px minmax(150px, .8fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #dfe7f1;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.request-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.request-identity > span {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: #eaf1ff;
+  color: #2861c8;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.request-identity p,
+.request-reason p,
+.approval-empty p {
+  margin: 0;
+}
+
+.request-identity b,
+.request-identity small,
+.request-identity em,
+.request-reason > span,
+.request-reason small,
+.request-role > span,
+.request-decision-note > span {
+  display: block;
+}
+
+.request-identity b {
+  font-size: 12px;
+}
+
+.request-identity small {
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+  color: #687b95;
+  font-size: 10px;
+}
+
+.request-identity em {
+  margin-top: 3px;
+  color: #98a3b1;
+  font-size: 9px;
+  font-style: normal;
+}
+
+.request-reason {
+  min-width: 0;
+}
+
+.request-reason > span,
+.request-role > span,
+.request-decision-note > span {
+  margin-bottom: 6px;
+  color: #687a92;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.request-reason p {
+  color: #2e4059;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.request-reason small {
+  margin-top: 5px;
+  overflow: hidden;
+  color: #96a1ae;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.request-role select,
+.request-decision-note input {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #d7e0eb;
+  border-radius: 9px;
+  background: #fff;
+  padding: 8px 10px;
+  color: #20334f;
+  font: inherit;
+  font-size: 11px;
+  outline: none;
+}
+
+.request-role select:focus,
+.request-decision-note input:focus {
+  border-color: #6e9cf3;
+  box-shadow: 0 0 0 3px rgba(55, 109, 218, .1);
+}
+
+.request-actions {
+  display: flex;
+  gap: 7px;
+  justify-content: flex-end;
+}
+
+.request-actions button {
+  min-height: 40px;
+  border-radius: 9px;
+  padding: 9px 11px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.request-actions .approve {
+  border: 0;
+  background: #1f6bc9;
+  color: #fff;
+}
+
+.request-actions .reject {
+  border: 1px solid #edcbd0;
+  background: #fff7f7;
+  color: #a6424d;
+}
+
+.approval-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border: 1px dashed #cfdeee;
+  border-radius: 13px;
+  color: #61738b;
+}
+
+.approval-empty > span {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e9f8f0;
+  color: #23825b;
+  font-weight: 900;
+}
+
+.approval-empty b {
+  font-size: 12px;
+}
+
+.approval-empty p {
+  margin-top: 4px;
+  font-size: 10px;
+}
+
+.admin-brand small,
+.admin-sidebar-note p,
+.admin-stats small,
+.form-note,
+.user-cell small,
+.event-list small,
+.event-list time,
+.subtle {
+  font-size: 10px;
+}
+
+.admin-sidebar nav a,
+.admin-header > div > p,
+.card-heading p,
+.admin-alert,
+.admin-profile b,
+.create-grid input,
+.create-grid select,
+.role-select,
+.user-cell b,
+th,
+td {
+  font-size: 12px;
+}
+
+.admin-profile small,
+.admin-stats span,
+.create-grid label > span,
+th,
+.status,
+.reset-flag,
+.locked-flag,
+.privacy-chip,
+.count-chip,
+.action-row button {
+  font-size: 10px;
+}
+
+.create-grid input,
+.create-grid select,
+.role-select {
+  min-height: 44px;
+  height: auto;
+  padding-block: 9px;
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.primary-action {
+  min-height: 44px;
+  height: auto;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.table-scroll {
+  border: 1px solid #e5ebf2;
+  border-radius: 12px;
+  overscroll-behavior-inline: contain;
+  scrollbar-gutter: stable;
+}
+
+.table-scroll table {
+  min-width: 980px;
+}
+
+.table-scroll thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8faff;
+}
+
+.table-scroll th:first-child,
+.table-scroll td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fff;
+  box-shadow: 1px 0 0 #edf1f5;
+}
+
+.table-scroll th:first-child {
+  z-index: 2;
+  background: #f8faff;
+}
+
+.action-row button {
+  min-height: 34px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-weight: 750;
+}
+
+.event-list {
+  scrollbar-gutter: stable;
+}
+
+@media (max-width: 1250px) {
+  .admin-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .approval-request {
+    grid-template-columns: minmax(190px, .9fr) minmax(240px, 1.1fr);
+  }
+
+  .request-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 800px) {
+  .admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .approval-request {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .request-actions {
+    justify-content: stretch;
+  }
+
+  .request-actions button {
+    flex: 1;
+  }
+
+  .admin-sidebar nav a {
+    min-height: 44px;
+    justify-content: center;
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .admin-sidebar nav a span {
+    display: inline-block;
+  }
+
+  .admin-card,
+  .security-card {
+    border-radius: 15px;
+  }
+}
+
+@media (max-width: 620px) {
+  .auth-form-panel,
+  .security-card,
+  .admin-card {
+    padding-inline: 18px;
+  }
+
+  .auth-mobile-brand {
+    margin-bottom: 38px;
+  }
+
+  .security-hero h1,
+  .admin-header h1 {
+    font-size: clamp(28px, 9vw, 34px);
+  }
+
+  .security-hero,
+  .card-heading {
+    min-width: 0;
+  }
+
+  .security-card .card-heading,
+  .admin-card .card-heading {
+    align-items: flex-start;
+  }
+
+  .admin-sidebar {
+    overflow-x: auto;
+  }
+
+  .admin-sidebar nav {
+    min-width: 380px;
+  }
+
+  .admin-profile,
+  .identity-card {
+    width: 100%;
+  }
+
+  .admin-stats article {
+    padding: 16px;
+  }
+
+  .event-list article {
+    grid-template-columns: 9px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .event-list time {
+    grid-column: 2;
+    text-align: left;
+  }
+}
+
+@media (max-width: 430px) {
+  .auth-form-panel footer,
+  .auth-options,
+  .privacy-panel {
+    flex-direction: column;
+  }
+
+  .admin-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .card-heading {
+    flex-wrap: wrap;
+  }
+
+  .privacy-chip,
+  .count-chip {
+    width: max-content;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-submit,
+  .auth-input,
+  .admin-sidebar nav a,
+  .action-row button {
+    scroll-behavior: auto;
+    transition: none;
+  }
+}

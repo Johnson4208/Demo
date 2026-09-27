@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<title>SolvAI {{ app_version }} — Financial Research Workspace</title>
+<link id="featureStylesheet" rel="stylesheet" href="/static/app.css?v={{ app_version }}" disabled>
+<link id="dashboardStylesheet" rel="stylesheet" href="/static/dashboard.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/quant.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/interface-refresh.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/indicators-vsa.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/dashboard-mode-fixes.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/dashboard-macro.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/company-full-workspace.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/feature-workspace.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/valuation-workspace.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/position-sizing-workspace.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/risk-workspace.css?v={{ app_version }}">
+</head>
+<body data-active-view="overview" data-overview-mode="1">
+<aside class="sidebar">
+  <div class="sidebar-fixed-header">
+    <div class="brand">
+      <div class="logo">FA</div>
+      <div><b>Financial AI</b><small>Local research engine</small></div>
+    </div>
+    <button class="sidebar-collapse" type="button" aria-label="Toggle sidebar" data-action="toggle-sidebar">‹</button>
+  </div>
+  <div class="sidebar-scroll-region" id="sidebarScrollRegion">
+    <nav class="grouped-nav">
+      <div class="nav-group"><div class="nav-group-title">OVERVIEW</div>
+        <button class="active" data-view="overview" title="Dashboard"><span class="nav-icon">⌂</span><span class="nav-label">Dashboard</span></button>
+        <button data-view="compare" title="Compare Companies"><span class="nav-icon">⇄</span><span class="nav-label">Compare Companies</span></button>
+      </div>
+      <div class="nav-group"><div class="nav-group-title">ANALYTICS</div>
+        <button data-view="stock" title="Stock Analytics"><span class="nav-icon">◒</span><span class="nav-label">Stock Analytics</span></button>
+        <button data-view="indicatorsVsa" title="Indicators &amp; VSA"><span class="nav-icon">⌁</span><span class="nav-label">Indicators &amp; VSA</span></button>
+        <button data-view="risk" title="Investment Research"><span class="nav-icon">△</span><span class="nav-label">Investment Research</span></button>
+        <button data-view="tradePlanner" title="Trade Planner"><span class="nav-icon">◇</span><span class="nav-label">Trade Planner</span></button>
+        <button data-view="macro" title="Macro Regime Monitor"><span class="nav-icon">◫</span><span class="nav-label">Macro Regime Monitor</span></button>
+        <button data-view="eventProbability" title="Event Scenarios"><span class="nav-icon">◎</span><span class="nav-label">Event Scenarios</span></button>
+      </div>
+      <div class="nav-group"><div class="nav-group-title">DATA</div>
+        <button data-view="news" title="Company News"><span class="nav-icon">◌</span><span class="nav-label">Company News</span></button>
+        <button data-view="learn" title="Data Sources &amp; Reports"><span class="nav-icon">▣</span><span class="nav-label">Data Sources &amp; Reports</span></button>
+        <button data-view="portfolio" title="Portfolio Risk"><span class="nav-icon">♡</span><span class="nav-label">Portfolio Risk</span></button>
+        <button data-view="watchlist" title="Watchlist &amp; Alerts"><span class="nav-icon">☆</span><span class="nav-label">Watchlist &amp; Alerts</span></button>
+      </div>
+      <div class="nav-group"><div class="nav-group-title">ACCOUNT</div>
+        <button data-view="guardian" title="Model Guardian"><span class="nav-icon">✓</span><span class="nav-label">Model Guardian</span></button>
+        <button data-view="systemHealth" title="Data Health"><span class="nav-icon">◉</span><span class="nav-label">Data Health</span></button>
+        <button type="button" data-action="navigate" data-href="/account/security" title="Account Security"><span class="nav-icon">◇</span><span class="nav-label">Account Security</span></button>
+        {% if current_user.role == 'admin' %}<button type="button" data-action="navigate" data-href="/admin/users" title="Access Center"><span class="nav-icon">♙</span><span class="nav-label">Access Center</span></button>{% endif %}
+      </div>
+    </nav>
+    <div class="side-title">COMPANIES IN YOUR LIBRARY</div>
+    <div id="companyList" class="company-list"></div>
+  </div>
+</aside>
+<main>
+<header class="workspace-header">
+  <div>
+    <span class="eyebrow" id="pageEyebrow">PERSONAL FINANCIAL INTELLIGENCE</span>
+    <h1 id="workspaceGreeting">Welcome back, {{ current_user.display_name }}.</h1>
+    <p class="workspace-subtitle" id="workspaceSubtitle">Your research workspace for verified financial evidence, market context, and decision support.</p>
+  </div>
+  <div class="workspace-header-actions">
+    <div class="workspace-status"><span class="status-dot"></span><span>Local research workspace</span></div>
+    <button type="button" class="header-icon" aria-label="Workspace settings" title="Workspace settings" aria-expanded="false" data-action="header-menu" data-menu="settings">⚙︎</button>
+    <button type="button" class="header-icon notification-button" aria-label="Notifications" title="Notifications" aria-expanded="false" data-action="header-menu" data-menu="notifications"><span aria-hidden="true">🔔︎</span><i></i></button>
+    <button type="button" class="header-avatar" aria-label="Account for {{ current_user.display_name }}" title="Account" aria-expanded="false" data-action="header-menu" data-menu="account">{{ current_user.display_name[:1]|upper }}</button>
+    <div id="headerActionMenu" class="header-action-menu" hidden role="dialog" aria-live="polite"></div>
+  </div>
+</header>
+<section id="overview" class="view active dashboard-view">
+  <div id="dashboardOut"></div>
+
+  <div class="overview-command-grid">
+    <section class="card assistant-shell overview-assistant-panel neon-card" id="assistantPanel" aria-label="Financial AI assistant">
+      <div class="assistant-topline">
+        <div class="assistant-avatar">FA</div>
+        <div class="assistant-heading">
+          <div class="assistant-kicker">FINANCIAL AI ASSISTANT</div>
+          <h2 class="assistant-title">What are you researching?</h2>
+          <p class="assistant-copy">Ask about a company, a metric, a risk, or a comparison.</p>
+        </div>
+      </div>
+      <div class="chat-label">Conversation</div>
+      <div id="assistantMessages" class="assistant-messages">
+        <div class="assistant-message assistant"><div class="message-meta">Financial AI</div><div>Hello. I’m Financial AI. Tell me a company, a metric, or a research task and I’ll guide you from the evidence in your library.</div></div>
+      </div>
+      <div class="quick-prompts" aria-label="Suggested questions">
+        <button type="button" data-action="use-prompt" data-prompt="Analyze FPT">Analyze FPT</button>
+        <button type="button" data-action="use-prompt" data-prompt="Compare FPT and CMG">Compare FPT vs CMG</button>
+        <button type="button" data-action="use-prompt" data-prompt="What are the key risks?">Key risks</button>
+        <button type="button" data-action="use-prompt" data-prompt="Explain the latest financial trend">Financial trend</button>
+      </div>
+      <div class="assistant-composer">
+        <input id="assistantInput" placeholder="Ask Financial AI anything…" autocomplete="off" aria-label="Ask Financial AI">
+        <button type="button" data-action="send-assistant" aria-label="Send message">Send <span>→</span></button>
+      </div>
+    </section>
+
+    <section class="card overview-company-panel neon-card" id="overviewCompanyPanel" data-mode="1" aria-label="Company overview search">
+      <div class="company-card-head">
+        <div><div class="assistant-kicker">COMPANY OVERVIEW</div><h2>Research a company</h2><p>Search once, then move from snapshot to full analysis.</p></div>
+        <div class="company-view-picker">
+          <span>View</span>
+          <div class="company-mode-switch" role="tablist" aria-label="Company overview display mode">
+            <button type="button" role="tab" aria-selected="true" aria-label="Compact summary" class="company-mode-btn active" data-mode="1" data-action="overview-mode" title="Compact summary">Summary</button>
+            <button type="button" role="tab" aria-selected="false" aria-label="Expanded metrics" class="company-mode-btn" data-mode="2" data-action="overview-mode" title="Expanded metrics">Metrics</button>
+            <button type="button" role="tab" aria-selected="false" aria-label="Full research" class="company-mode-btn" data-mode="3" data-action="overview-mode" title="Full research">Full</button>
+          </div>
+        </div>
+      </div>
+      <form class="company-search-row" id="overviewSearchForm">
+        <label class="company-search-field" for="overviewCompany">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+          <input id="overviewCompany" placeholder="Company name or ticker" autocomplete="off" aria-label="Company name or ticker" spellcheck="false">
+          <span class="company-search-key" aria-hidden="true">↵</span>
+        </label>
+        <button type="submit" class="company-search-submit" aria-label="Search company"><span>Search</span><span aria-hidden="true">→</span></button>
+        <div id="companySearchMenu" class="company-search-menu" role="listbox" aria-label="Company suggestions" hidden></div>
+      </form>
+      <div id="overviewCompactContent" class="company-mode-content" aria-live="polite"></div>
+      <div id="overviewExpandedContent" class="company-mode-content" aria-live="polite" hidden></div>
+      <div class="company-panel-foot"><button class="text-action" type="button" data-action="research-brief">Research brief <span aria-hidden="true">↗</span></button><button class="text-action" type="button" data-action="overview-valuation">Core value <span aria-hidden="true">↗</span></button><button class="text-action" type="button" data-action="overview-mode" data-mode="3">Full analysis <span aria-hidden="true">→</span></button></div>
+    </section>
+
+    <section class="card overview-news-panel" id="overviewNewsOut">
+      <div class="overview-news-head"><div><div class="assistant-kicker">MARKET &amp; ECONOMIC NEWS</div><h3>What matters now</h3></div><span class="live-dot-label"><i></i> live</span></div>
+      <div class="macro-news-filters" role="tablist" aria-label="Macro news filters">
+        <button class="macro-news-filter active" data-filter="All" type="button">All</button>
+        <button class="macro-news-filter" data-filter="Global Macro" type="button">Global</button>
+        <button class="macro-news-filter" data-filter="Vietnam" type="button">Vietnam</button>
+        <button class="macro-news-filter" data-filter="Markets" type="button">Markets</button>
+        <button class="macro-news-filter" data-filter="Commodities" type="button">Commodities</button>
+        <button class="macro-news-filter" data-filter="Policy" type="button">Policy</button>
+      </div>
+      <div id="macroNewsItems" class="macro-news-items"><div class="overview-news-empty">Scanning macro and market sources…</div></div>
+    </section>
+  </div>
+
+  <section class="dashboard-macro-panel" id="dashboardMacroMount" aria-label="United States macro indicator dashboard" aria-live="polite">
+    <div class="dashboard-macro-loading">
+      <span class="dashboard-macro-loading-mark" aria-hidden="true"></span>
+      <div><b>Loading official macro indicators…</b><span>CPI, Fed rate, retail sales, unemployment, and gasoline.</span></div>
+    </div>
+  </section>
+  <section class="quick-access-card" id="quickAccessMount"></section>
+
+  <div id="overviewOut" class="overview-result-wrap" aria-hidden="true"></div>
+  <div id="marketSnapshotOut" class="overview-result-wrap" aria-hidden="true"></div>
+
+  <div id="companyModeOverlay" class="company-mode-overlay" hidden aria-modal="true" role="dialog">
+    <div class="company-overlay-backdrop" data-action="close-overview"></div>
+    <div class="company-overlay-card">
+      <div class="company-overlay-bar">
+        <div class="company-overlay-heading">
+          <span class="assistant-kicker">COMPANY OVERVIEW · MODE 3</span>
+          <strong id="companyOverlayTitle">Full research overview</strong>
+        </div>
+        <div class="company-overlay-actions">
+          <span class="company-overlay-badge">Evidence workspace</span>
+          <button type="button" class="company-overlay-close" data-action="close-overview" aria-label="Close full research overview">×</button>
+        </div>
+      </div>
+      <div id="companyOverlayContent"></div>
+    </div>
+  </div>
+</section>
+
+<section id="compare" class="view feature-view feature-view-compare">
+  <header class="feature-hero">
+    <div><span class="feature-kicker">RESEARCH WORKSPACE · COMPARISON</span><h2>Compare companies on equal terms.</h2><p>Place two companies side by side using the same evidence, reporting periods, and coverage rules.</p></div>
+    <div class="feature-hero-note"><b>Best for</b><span>Quality, growth, profitability, and evidence coverage checks.</span></div>
+  </header>
+  <section class="feature-command-card" aria-labelledby="compareSetupTitle">
+    <div class="feature-section-heading"><div><span>01</span><h3 id="compareSetupTitle">Choose two companies</h3></div><p>Use company names or tickers already connected to your research library.</p></div>
+    <div class="feature-form-grid feature-form-grid-two">
+      <label><span>First company</span><input id="compareA" placeholder="e.g. FPT" autocomplete="off"></label>
+      <label><span>Second company</span><input id="compareB" placeholder="e.g. VNZ" autocomplete="off"></label>
+    </div>
+    <div class="feature-actions"><button type="button" class="feature-primary" data-action="compare">Compare companies</button><small>Results flag unavailable evidence instead of estimating missing values.</small></div>
+  </section>
+  <div id="compareOut" class="feature-output" aria-live="polite"></div>
+</section>
+
+<section id="stock" class="view feature-view feature-view-stock">
+  <header class="feature-hero">
+    <div><span class="feature-kicker">MARKET ANALYSIS · HISTORICAL</span><h2>Read the market signal with context.</h2><p>Review calibrated direction, support and resistance, feature importance, and the evidence limits behind the result.</p></div>
+    <div class="feature-hero-note"><b>Model discipline</b><span>Unsupported signals remain uncertain rather than being forced into a direction.</span></div>
+  </header>
+  <section class="feature-command-card" aria-labelledby="stockSetupTitle">
+    <div class="feature-section-heading"><div><span>01</span><h3 id="stockSetupTitle">Select a security</h3></div><p>A report-library company or exact market ticker can be used.</p></div>
+    <div class="feature-form-grid feature-form-grid-action">
+      <label><span>Company or ticker</span><input id="stockCompany" placeholder="e.g. FPT" autocomplete="off"></label>
+      <button type="button" class="feature-primary" data-action="stock">Analyze stock</button>
+    </div>
+    {% if current_user.role in ['admin','editor'] %}
+    <details class="feature-disclosure">
+      <summary><span><b>Add chart evidence</b><small>Optional supporting image—not a replacement for market data.</small></span><em>Optional</em></summary>
+      <div class="feature-upload-row"><label><span>Chart image</span><input type="file" id="chartFile" accept="image/*"></label><button type="button" class="feature-secondary" data-action="upload-chart">Use chart image</button></div>
+    </details>
+    {% else %}<div class="feature-notice">Viewer access can run analytics. Editor access is required to upload supporting source files.</div>{% endif %}
+  </section>
+  <div id="stockOut" class="feature-output" aria-live="polite"></div>
+</section>
+
+<section id="indicatorsVsa" class="view feature-view vsa-workspace">
+  <header class="feature-hero vsa-hero">
+    <div><span class="feature-kicker">PRICE · VOLUME · MARKET STRUCTURE</span><h2>Build a conditional VSA research plan.</h2><p>Combine technical indicators, bar-by-bar volume spread analysis, Wyckoff context, and trap detection. Every level states what must confirm it and what invalidates it.</p></div>
+    <div class="feature-chip-row" aria-label="Analysis characteristics"><span>Explainable</span><span>OHLCV based</span><span>No auto-orders</span></div>
+  </header>
+
+  <form id="vsaAnalyzeForm" class="feature-command-card vsa-control-card">
+    <div class="feature-section-heading"><div><span>01</span><h3>Set the research situation</h3></div><p>Start with the company, your research posture, and whether you already hold it.</p></div>
+    <div class="feature-form-grid feature-form-grid-three vsa-primary-grid">
+      <label><span>Company or ticker</span><input id="vsaCompany" value="FPT" placeholder="FPT" autocomplete="off"></label>
+      <label><span>Research profile</span><select id="vsaProfile"><option value="conservative">Conservative</option><option value="balanced" selected>Balanced</option><option value="active">Active</option></select></label>
+      <label><span>Current situation</span><select id="vsaPositionStatus"><option value="watching" selected>Researching a new entry</option><option value="holding">Already holding</option></select></label>
+    </div>
+    <details class="feature-disclosure vsa-advanced-settings">
+      <summary><span><b>Risk, exposure, and symbol settings</b><small>Use these only when position sizing or an exact market symbol matters.</small></span><em>Advanced</em></summary>
+      <div class="feature-form-grid feature-form-grid-four">
+        <label><span>Exact market symbol <small>optional</small></span><input id="vsaSymbol" placeholder="FPT.VN or YF:AAPL" autocomplete="off"></label>
+        <label><span>Account value <small>optional</small></span><input id="vsaAccountValue" type="number" min="0" step="1" placeholder="For sizing only"></label>
+        <label><span>Your entry price <small>if holding</small></span><input id="vsaEntryPrice" type="number" min="0" step="0.01" placeholder="Leave blank if researching"></label>
+        <label><span>Maximum risk per trade %</span><input id="vsaRiskPct" type="number" min="0.05" max="5" step="0.05" value="1"></label>
+        <label><span>Same-industry exposure %</span><input id="vsaSectorExposure" type="number" min="0" max="100" step="0.5" value="0"></label>
+      </div>
+      <p class="feature-helper">For international securities, prefix an exact Yahoo symbol with <code>YF:</code>, such as <code>YF:AAPL</code>.</p>
+    </details>
+    <div class="feature-actions"><button type="submit" class="feature-primary" data-action="vsa-analyze">Analyze company</button><small>The output separates observation, interpretation, confirmation, and invalidation.</small></div>
+  </form>
+
+  <div id="vsaOut" class="vsa-output feature-output" aria-live="polite">
+    <section class="feature-empty-state"><span>Ready for analysis</span><h3>Choose a company to read price and volume together.</h3><p>The result will show market phase, VSA events, trap risk, conditional levels, and timing guidance.</p></section>
+  </div>
+
+  <section class="feature-command-card vsa-screen-card">
+    <div class="feature-section-heading"><div><span>02</span><h3>Rank the research universe</h3></div><p>Ranking means “review first,” not “buy first.”</p></div>
+    <label class="feature-wide-field"><span>Companies <small>Leave blank to use the report library</small></span><input id="vsaUniverse" placeholder="FPT, PNJ, CMG, VNG"></label>
+    <div class="feature-actions"><button type="button" class="feature-secondary" data-action="vsa-screen">Rank candidates</button><small>Rerun after adding or re-indexing a company statement.</small></div>
+    <div id="vsaScreenOut" class="vsa-screen-output" aria-live="polite"></div>
+  </section>
+</section>
+
+<section id="risk" class="view feature-view feature-view-risk">
+  <header class="feature-hero risk-hero">
+    <div><span class="feature-kicker">INVESTMENT RESEARCH · QUALITY &amp; VALUE</span><h2>Check the evidence, then test long-term value.</h2><p>Begin with an accounting-quality screen. If the evidence is usable, continue to the long-holding valuation without mixing in short-term trade sizing.</p></div>
+    <div class="risk-hero-guide"><span>FOCUSED WORKFLOW</span><strong>Two research stages</strong><p>Complete the current stage to unlock the next workspace.</p><div class="risk-progress-summary"><b data-risk-progress-label>Stage 1 of 2</b><i aria-hidden="true"><span data-risk-progress-bar></span></i></div></div>
+  </header>
+
+  <nav class="risk-workflow-nav" aria-label="Investment research workflow">
+    <button type="button" data-risk-step-tab="1" aria-current="step"><span>01</span><div><b>Accounting quality</b><small>Warning screen &amp; evidence quality</small></div><em data-risk-step-status>Current</em></button>
+    <button type="button" data-risk-step-tab="2" disabled aria-disabled="true"><span>02</span><div><b>Core value</b><small>Bear, Base &amp; Bull assumptions</small></div><em data-risk-step-status>Locked</em></button>
+  </nav>
+
+  <section id="riskAssessmentPanel" class="feature-command-card risk-launch-card" data-risk-step-panel="1">
+    <div class="feature-section-heading"><div><span>01</span><h3>Choose a company and review accounting evidence</h3></div><p>The screen looks for filing patterns that deserve investigation; it is not a fraud probability or a buy/sell signal.</p></div>
+    <div class="risk-launch-row">
+      <label class="risk-company-field"><span>Company or ticker <span class="risk-info-tip" tabindex="0" role="note" aria-label="About company input. Use the report-library company name or its market ticker. The same company is carried into the valuation and trade planner." data-tooltip="Use a report-library company name or market ticker. This selection is carried into the valuation and trade planner.">i</span></span><input id="riskCompany" placeholder="e.g. FPT" autocomplete="off" spellcheck="false"></label>
+      <button type="button" class="feature-primary risk-run-button" data-action="risk"><span>Run accounting screen</span><small>Verdict + key drivers</small></button>
+    </div>
+  </section>
+
+  <div class="risk-assessment-grid" data-risk-step-panel="1">
+    <div id="riskOut" class="feature-output risk-financial-output" aria-live="polite"><section class="risk-empty-state"><span>ACCOUNTING QUALITY</span><h3>Run the screen to see the verdict before the detailed indices.</h3><p>The first view shows the review threshold, the three largest drivers, evidence quality, and the clearest next action. Full evidence remains available when you need it.</p></section></div>
+  </div>
+
+  <section id="valuationPanel" class="feature-section-card valuation-lab-card" aria-labelledby="valuationLabTitle" data-risk-step-panel="2" hidden>
+    <div class="valuation-lab-head">
+      <div><span class="feature-section-number">02</span><div><div class="feature-kicker">AUTOMATIC CORE VALUE · LONG-HOLDING OUTLOOK</div><h3 id="valuationLabTitle">Tell SolvAI only what you know</h3><p>SolvAI collects the technical company inputs, checks their evidence, and builds conservative Bear, Base, and Bull holding paths automatically.</p></div></div>
+      <span class="feature-chip">Auto-calculated</span>
+    </div>
+    <div class="valuation-simple-workspace">
+      <div class="valuation-auto-banner"><span class="valuation-auto-mark">✓</span><div><b>Company numbers are filled automatically</b><p>Price, shares outstanding, cash flow, EPS, dividends, book value, growth, profitability, and leverage are resolved from market data and verified reports. Missing data stays missing.</p></div><em>Evidence checked</em></div>
+      <div class="valuation-user-fields">
+        <label><span class="valuation-field-label">Company / ticker</span><input id="valuationCompany" value="FPT" placeholder="FPT" autocomplete="off"></label>
+        <label><span class="valuation-field-label">Shares you hold <small>optional</small> <span class="risk-info-tip" tabindex="0" role="note" aria-label="About shares held. Enter the number of shares you own to translate per-share scenarios into a holding value. This does not change the company valuation." data-tooltip="Your share count converts per-share scenarios into a holding value. It never changes the company valuation.">i</span></span><input id="valuationSharesHeld" type="number" step="1" min="0" placeholder="e.g. 1,000"></label>
+        <label><span class="valuation-field-label">Average cost / share <small>optional</small> <span class="risk-info-tip" tabindex="0" role="note" aria-label="About average cost. Your average purchase cost is used only to show the modeled gain or loss relative to your cost basis." data-tooltip="Used only to compare the modeled holding value with your cost basis.">i</span></span><input id="valuationAverageCost" type="number" step="0.01" min="0" placeholder="Your average price"></label>
+        <label><span class="valuation-field-label">Holding period <span class="risk-info-tip risk-info-tip-right" tabindex="0" role="note" aria-label="About holding period. Choose how many years the long-holding scenario should model. Longer periods carry more uncertainty." data-tooltip="Years modeled for the holding outlook. Uncertainty increases with longer horizons.">i</span></span><select id="valuationHoldingYears"><option value="3">3 years</option><option value="5" selected>5 years</option><option value="7">7 years</option><option value="10">10 years</option></select></label>
+      </div>
+      <label class="valuation-reinvest-toggle"><input id="valuationReinvestDividends" type="checkbox"><span><b>Reinvest modeled dividends</b><small>Off by default for a more conservative cash-dividend view.</small></span></label>
+    </div>
+    <details class="feature-disclosure valuation-manual-inputs valuation-advanced-inputs">
+      <summary><span><b>Advanced assumptions &amp; technical overrides</b><small>Most users can leave this closed.</small></span><em>Optional</em></summary>
+      <div class="valuation-advanced-section"><div><b>Model assumptions</b><small>Defaults are conservative and can be changed for research.</small></div><div class="feature-form-grid feature-form-grid-four valuation-input-grid">
+        <label><span class="valuation-field-label">Required return % <small>blank = auto</small> <span class="risk-info-tip" tabindex="0" role="note" aria-label="About required return. The annual return used to discount future cash flows. Leave blank for a currency and beta adjusted research anchor." data-tooltip="Discount rate for future cash flows. Leave blank for SolvAI's visible currency and beta-adjusted research anchor.">i</span></span><input id="valuationRequiredReturn" type="number" step="0.1" min="5" max="35" placeholder="Auto from currency + beta"></label>
+        <label><span class="valuation-field-label">Near growth % <small>blank = auto</small> <span class="risk-info-tip" tabindex="0" role="note" aria-label="About near growth. The assumed annual growth rate during the explicit forecast period. Leave blank to use available evidence." data-tooltip="Assumed annual growth during the explicit forecast period. Leave blank to use available evidence.">i</span></span><input id="valuationNearGrowth" type="number" step="0.1" min="-20" max="30" placeholder="Auto from evidence"></label>
+        <label><span class="valuation-field-label">Stable growth % <small>blank = auto</small> <span class="risk-info-tip risk-info-tip-right" tabindex="0" role="note" aria-label="About stable growth. The long-run growth assumption after the forecast period. Leave blank for a conservative currency-based anchor." data-tooltip="Long-run growth after the forecast period. Leave blank for a conservative currency-based anchor.">i</span></span><input id="valuationTerminalGrowth" type="number" step="0.1" min="-5" max="10" placeholder="Auto from currency"></label>
+        <label><span class="valuation-field-label">DCF forecast years</span><input id="valuationYears" type="number" min="3" max="10" value="5"></label>
+        <label><span class="valuation-field-label">Normalized P/E <small>blank = auto</small></span><input id="valuationPE" type="number" step="0.1" min="3" max="40" placeholder="Auto from bounded provider P/E"></label>
+        <label><span class="valuation-field-label">Margin of safety %</span><input id="valuationMargin" type="number" step="1" min="0" max="50" value="20"></label>
+      </div></div>
+      <div class="valuation-advanced-section"><div><b>Verified financial overrides</b><small>Use only when automatic data is unavailable. Overrides are labelled and not saved as facts.</small></div><div class="feature-form-grid feature-form-grid-four valuation-input-grid valuation-fundamental-grid">
+        <label><span class="valuation-field-label">Current price / share</span><input id="valuationPrice" type="number" step="0.01" min="0" placeholder="e.g. 95000"></label>
+        <label><span class="valuation-field-label">Shares outstanding</span><input id="valuationShares" type="number" step="1" min="0" placeholder="Total shares"></label>
+        <label><span class="valuation-field-label">Free cash flow <small>total company</small></span><input id="valuationFCF" type="number" step="1" placeholder="CFO minus capex"></label>
+        <label><span class="valuation-field-label">Trailing EPS</span><input id="valuationEPS" type="number" step="0.01" placeholder="Per share"></label>
+        <label><span class="valuation-field-label">Annual dividend / share</span><input id="valuationDividend" type="number" step="0.01" min="0" placeholder="Trailing annual"></label>
+        <label><span class="valuation-field-label">Book value / share</span><input id="valuationBook" type="number" step="0.01" min="0" placeholder="Per share"></label>
+        <label><span class="valuation-field-label">Currency</span><input id="valuationCurrency" placeholder="Provider / VND" maxlength="5" aria-label="Valuation currency"></label>
+      </div></div>
+      <div class="valuation-advanced-section valuation-forward-inputs"><div><b>Forward driver overrides</b><small>Leave blank to use provider and verified-report evidence.</small></div><div class="feature-form-grid feature-form-grid-four valuation-input-grid valuation-fundamental-grid">
+        <label><span class="valuation-field-label">Forward revenue growth % <span class="risk-info-tip" tabindex="0" role="note" aria-label="About forward revenue growth. Expected change in company sales over the next modeled period." data-tooltip="Expected change in company sales over the next modeled period.">i</span></span><input id="valuationRevenueGrowth" type="number" step="0.1" min="-50" max="100" placeholder="Provider / report"></label>
+        <label><span class="valuation-field-label">Forward EPS growth % <span class="risk-info-tip" tabindex="0" role="note" aria-label="About forward EPS growth. Expected change in earnings per share, which can differ from revenue growth because of margins and share count." data-tooltip="Expected change in earnings per share; margins and share count can make it differ from revenue growth.">i</span></span><input id="valuationEPSGrowth" type="number" step="0.1" min="-100" max="200" placeholder="Provider estimate"></label>
+        <label><span class="valuation-field-label">Operating-margin change <small>percentage points</small> <span class="risk-info-tip risk-info-tip-right" tabindex="0" role="note" aria-label="About operating margin change. The expected increase or decrease in operating margin measured in percentage points, not percent." data-tooltip="Expected operating-margin change in percentage points—not percent.">i</span></span><input id="valuationMarginChange" type="number" step="0.1" min="-30" max="30" placeholder="e.g. 1.5"></label>
+        <label><span class="valuation-field-label">Net debt / EBITDA <span class="risk-info-tip risk-info-tip-right" tabindex="0" role="note" aria-label="About net debt to EBITDA. A leverage ratio comparing debt after cash with operating earnings before interest, tax, depreciation, and amortization." data-tooltip="Leverage ratio comparing debt after cash with EBITDA. Higher values generally mean less balance-sheet flexibility.">i</span></span><input id="valuationNetDebt" type="number" step="0.1" min="-5" max="20" placeholder="Provider / assumption"></label>
+        <label><span class="valuation-field-label">Return on equity % <span class="risk-info-tip" tabindex="0" role="note" aria-label="About return on equity. Net income relative to shareholder equity. High values can reflect strong economics or high leverage." data-tooltip="Net income relative to shareholder equity. High values can reflect strong economics or high leverage.">i</span></span><input id="valuationROE" type="number" step="0.1" min="-100" max="100" placeholder="Provider / assumption"></label>
+      </div></div>
+    </details>
+    <div class="feature-actions valuation-run-row"><button type="button" class="feature-primary" data-action="valuation">Calculate long-holding outlook</button><small>Scenario research only—not a guaranteed target or personalized recommendation.</small></div>
+    <div id="valuationOut" class="valuation-out" aria-live="polite"><div class="valuation-empty"><b>Ready to calculate automatically</b><span>Choose a company. Add your holding details only if you want portfolio-level values.</span></div></div>
+  </section>
+
+</section>
+
+<section id="tradePlanner" class="view feature-view feature-view-risk feature-view-trade">
+  <header class="feature-hero risk-hero">
+    <div><span class="feature-kicker">TRADE PLANNING · DOWNSIDE FIRST</span><h2>Define the loss boundary before the position.</h2><p>Choose one sizing rule, test the stop and target against historical paths, and keep this short-term decision separate from long-term company valuation.</p></div>
+    <div class="feature-hero-note"><b>Default</b><span>Fixed Fractional is the safest starting mode. Kelly modes unlock only when enough resolved paths exist.</span></div>
+  </header>
+  <section id="tradePlannerPanel" class="feature-section-card trading-risk-card risk-workflow-section" aria-labelledby="tradePlannerTitle">
+    <div class="feature-section-heading"><div><span>01</span><h3 id="tradePlannerTitle">Define downside before position size</h3></div><p>Choose one sizing mode, then use the R-multiple separately to define the reward target.</p></div>
+    <div class="risk-trade-layout">
+      <fieldset class="risk-input-group"><legend>Instrument &amp; time horizon</legend><p>What are you planning to trade, and how long should the historical paths be evaluated?</p><div class="feature-form-grid feature-form-grid-two trading-risk-inputs">
+        <label><span>Company / ticker</span><input id="tradeCompany" value="FPT" placeholder="FPT" autocomplete="off"></label>
+        <label><span>Entry price <small>optional</small> <span class="risk-info-tip risk-info-tip-right" tabindex="0" role="note" aria-label="About entry price. Leave blank to use the latest available market price. It is the reference used to calculate stop distance and target price." data-tooltip="Leave blank to use the latest market price. This anchors the stop distance and target price.">i</span></span><input id="tradeEntry" type="number" step="0.01" placeholder="Use current price"></label>
+        <label><span>Direction <span class="risk-info-tip" tabindex="0" role="note" aria-label="About trade direction. Long models downside below entry and upside above it. Short reverses those directions." data-tooltip="Long models downside below entry and upside above it. Short reverses those directions.">i</span></span><select id="tradeSide"><option value="long">Long</option><option value="short">Short</option></select></label>
+        <label><span>Holding horizon <small>days</small> <span class="risk-info-tip risk-info-tip-right" tabindex="0" role="note" aria-label="About holding horizon. The forward window used to test whether historical paths reached the stop or target first." data-tooltip="Forward window used to test whether historical paths reached the stop or target first.">i</span></span><input id="tradeHorizon" type="number" min="5" max="60" value="20"></label>
+      </div></fieldset>
+      <fieldset class="risk-input-group"><legend>Risk budget &amp; reward</legend><p>How much capital may be lost if the plan fails, and how much reward is required for each unit of risk?</p><div class="feature-form-grid feature-form-grid-three trading-risk-inputs">
+        <label><span>Account equity <small>optional</small> <span class="risk-info-tip" tabindex="0" role="note" aria-label="About account equity. Used only to translate the chosen risk percentage into a currency risk budget and unit count." data-tooltip="Used only to translate your risk percentage into a currency risk budget and unit count.">i</span></span><input id="tradeEquity" type="number" step="1" placeholder="e.g. 100000000"></label>
+        <label id="tradeRiskPctField"><span>Risk per trade % <small>Fixed Fractional only</small> <span class="risk-info-tip" tabindex="0" role="note" aria-label="About risk per trade. Fixed Fractional sizing limits the planned loss to this percentage of account equity if the stop is reached." data-tooltip="Used only by Fixed Fractional. It limits planned stop loss to this percentage of account equity, before the cash-exposure cap.">i</span></span><input id="tradeRiskPct" type="number" step="0.1" min="0.05" max="10" value="1"></label>
+        <label><span>Reward target / R <span class="risk-info-tip risk-info-tip-right" tabindex="0" role="note" aria-label="About R multiple. R-multiple is a reward-target rule, not a position-sizing method. One R equals the distance from entry to stop." data-tooltip="R-multiple sets the reward target after sizing. 1R is the entry-to-stop distance; 2R seeks twice that distance.">i</span></span><input id="tradeTargetR" type="number" step="0.1" min="1" max="5" value="2"></label>
+      </div></fieldset>
+    </div>
+    <input id="tradeSizingMethod" type="hidden" value="fixed-fractional">
+    <div class="risk-active-method"><div><span>SELECTED SIZING MODE</span><b id="riskActiveMethodName">Fixed Fractional</b></div><p id="riskActiveMethodDescription">Limits planned loss to the selected percentage of account equity, subject to a 100% cash-exposure cap.</p></div>
+    <details class="risk-method-library-disclosure">
+      <summary><span><b>Choose position-sizing mode</b><small>Changing an active mode recalculates the position</small></span><em>3 active · 3 related</em></summary>
+      <section class="risk-method-guide" aria-labelledby="riskMethodGuideTitle">
+        <div class="risk-method-guide-head"><div><span class="feature-kicker">ACTIVE POSITION-SIZING MODES</span><h3 id="riskMethodGuideTitle">Choose how exposure is calculated</h3><p>Exactly one active mode controls the unit count. R-multiple remains a separate reward-target rule.</p></div><span class="risk-info-tip risk-info-tip-right" tabindex="0" role="note" aria-label="About position-sizing methods. A method controls exposure after a thesis exists; it does not indicate whether a security should be bought or sold." data-tooltip="A sizing method controls exposure after a thesis exists. It does not tell you whether the security should be bought or sold.">i</span></div>
+        <div class="risk-method-library-layout">
+          <div><div class="risk-method-list" role="radiogroup" aria-label="Active position-sizing mode">
+            <button type="button" class="risk-method-item active selected" data-risk-method="fixed-fractional" data-sizing-mode="fixed-fractional" role="radio" aria-checked="true"><span class="risk-method-rank">01</span><span><b>Fixed Fractional</b><small>Risk a fixed percentage of equity</small></span><em>Selected</em></button>
+            <button type="button" class="risk-method-item" data-risk-method="kelly" data-sizing-mode="kelly" role="radio" aria-checked="false"><span class="risk-method-rank">02</span><span><b>Kelly Criterion</b><small>Size from evidence-adjusted win rate and payoff</small></span><em>Calculates</em></button>
+            <button type="button" class="risk-method-item" data-risk-method="half-kelly" data-sizing-mode="half-kelly" role="radio" aria-checked="false"><span class="risk-method-rank">03</span><span><b>Half-Kelly / Fractional Kelly</b><small>Apply half of the positive Kelly fraction</small></span><em>Calculates</em></button>
+          </div><div class="risk-related-methods"><span>RELATED FRAMEWORKS · DO NOT REPLACE THE ACTIVE MODE</span>
+            <button type="button" class="risk-method-item" data-risk-reference-method="r-multiple"><span class="risk-method-rank">R</span><span><b>R-multiple</b><small>Sets the reward target</small></span><em>Target rule</em></button>
+            <button type="button" class="risk-method-item" data-risk-reference-method="volatility-targeting"><span class="risk-method-rank">V</span><span><b>Volatility Targeting</b><small>Portfolio exposure overlay</small></span><em>Portfolio</em></button>
+            <button type="button" class="risk-method-item" data-risk-reference-method="risk-parity"><span class="risk-method-rank">P</span><span><b>Risk Parity</b><small>Needs multiple portfolio holdings</small></span><em>Portfolio</em></button>
+          </div></div>
+          <div id="riskMethodDetail" class="risk-method-detail" aria-live="polite"></div>
+        </div>
+      </section>
+    </details>
+    <div class="feature-actions risk-trade-actions"><button type="button" class="feature-primary" data-action="trading-risk">Calculate downside &amp; position size</button><small>Historical research heuristic—not an order, guarantee, or personalized recommendation.</small></div>
+    <div id="tradingRiskOut" class="risk-trading-output"><section class="risk-empty-state compact"><span>TRADE RISK PLAN</span><h3>Add account equity for a unit-based position size.</h3><p>Without it, SolvAI will still estimate stop distance, target, drawdown, adverse excursion, and historical expectancy.</p></section></div>
+  </section>
+</section>
+
+<section id="macro" class="view feature-view feature-view-dynamic">
+  <div id="macroOut" class="feature-output feature-output-flush" aria-live="polite"></div>
+</section>
+
+<section id="eventProbability" class="view feature-view feature-view-event">
+  <header class="feature-hero event-prob-hero">
+    <div><span class="feature-kicker">EVENT SCENARIOS · EVIDENCE-LED</span><h2>Frame one question. Compare plausible outcomes.</h2><p>Choose a category and factor, then inspect evidence-weighted shares, source quality, and the signals that could change the ranking.</p></div>
+    <div class="feature-hero-note"><b>Online research</b><span>Current sources are filtered and weighted before outcomes are ranked.</span></div>
+  </header>
+  <section class="feature-command-card event-prob-controls ep-controls-modern" aria-labelledby="eventSetupTitle">
+    <div class="feature-section-heading"><div><span>01</span><h3 id="eventSetupTitle">Define the event question</h3></div><p>Start broad, then narrow to the factor that actually matters.</p></div>
+    <div class="feature-form-grid feature-form-grid-three">
+      <label>01 · Investment category<select id="epCategory"><option value="">Select a category</option></select></label>
+      <label>02 · Specific factor<select id="epFactor" disabled><option value="">Select a factor</option></select></label>
+      <label>Focus / entity (optional)<input id="epFocus" placeholder="e.g. Vietnam, FPT, banking sector, Asia"></label>
+    </div>
+    <div class="feature-actions event-prob-meta-row">
+      <label class="feature-inline-field"><span>Research horizon</span><select id="epHorizon"><option value="7 days">7 days</option><option value="30 days" selected>30 days</option><option value="90 days">90 days</option><option value="6 months">6 months</option></select></label>
+      <button type="button" class="feature-primary primary" data-action="event-probability">Run event analysis</button>
+    </div>
+  </section>
+  <div id="epOut" class="feature-output" aria-live="polite"></div>
+  <section class="feature-section-card ep-forecast-workspace" aria-label="Forecast Lab">
+    <div class="ep-workspace-head">
+      <div><span class="feature-kicker">FORECAST LAB</span><h3>Track, save, and calibrate research</h3><p>Review earlier forecasts, record observed outcomes, and measure how probability estimates perform over time.</p></div>
+      <div class="ep-workspace-tabs" role="tablist" aria-label="Forecast workspace view">
+        <button type="button" class="active" data-ep-tab="history" data-action="forecast-tab">History</button>
+        <button type="button" data-ep-tab="saved" data-action="forecast-tab">Saved</button>
+      </div>
+    </div>
+    <div id="epForecastWorkspace"><div class="forecast-workspace-empty">Run an analysis or open Event Scenarios history to begin.</div></div>
+  </section>
+</section>
+
+<section id="news" class="view feature-view feature-view-news">
+  <header class="feature-hero">
+    <div><span class="feature-kicker">CURRENT CONTEXT · COMPANY NEWS</span><h2>See what changed around a company.</h2><p>Use current reporting as context alongside verified financial evidence. Stronger publishers and newer sources appear first.</p></div>
+    <div class="feature-hero-note"><b>Evidence boundary</b><span>News explains context; it does not replace company filings.</span></div>
+  </header>
+  <section class="feature-command-card">
+    <div class="feature-section-heading"><div><span>01</span><h3>Choose a company</h3></div><p>Enter a company name or ticker.</p></div>
+    <div class="feature-form-grid feature-form-grid-action"><label><span>Company or ticker</span><input id="newsCompany" placeholder="e.g. FPT"></label><button type="button" class="feature-primary" data-action="news">Load company news</button></div>
+  </section>
+  <div id="newsOut" class="feature-output" aria-live="polite"></div>
+</section>
+
+<section id="learn" class="view feature-view feature-view-reports">
+  <header class="feature-hero">
+    <div><span class="feature-kicker">EVIDENCE LIBRARY · REPORTS</span><h2>Keep company evidence organized and current.</h2><p>Add reports to the correct company, refresh the index, and confirm what is ready for analysis.</p></div>
+    <div class="feature-hero-note"><b>Identity rule</b><span>The company folder—not the filename—controls where a report belongs.</span></div>
+  </header>
+  <section class="feature-command-card">
+    {% if current_user.role in ['admin','editor'] %}
+    <div class="feature-section-heading"><div><span>01</span><h3>Refresh the research library</h3></div><p>Use this after adding files directly to a company folder.</p></div>
+    <div class="feature-scan-row"><div><span>Recommended folder pattern</span><code>reports/Companies_reports/Technology/FPT/</code></div><button type="button" class="feature-secondary" data-action="scan">Scan all reports</button></div>
+    <div id="scanStatus" class="muted"></div>
+    <div class="feature-divider"></div>
+    <div class="feature-section-heading"><div><span>02</span><h3>Add one report</h3></div><p>Choose the industry and company before selecting the source file.</p></div>
+    <div class="feature-form-grid feature-form-grid-three"><label><span>Industry</span><input id="upIndustry" placeholder="e.g. Technology"></label><label><span>Company</span><input id="upCompany" placeholder="e.g. FPT"></label><label><span>Report file</span><input type="file" id="reportFile" accept=".pdf,.docx,.txt,.md,.csv"></label></div>
+    <div class="feature-actions"><button type="button" class="feature-primary" data-action="upload-report">Add and index report</button><small>Supported: PDF, DOCX, TXT, MD, and CSV.</small></div>
+    {% else %}<div class="feature-notice">Your Viewer role can use indexed research but cannot upload or re-index reports.</div>{% endif %}
+  </section>
+  <div id="learnOut" class="feature-output" aria-live="polite"></div>
+</section>
+
+<section id="portfolio" class="view feature-view feature-view-portfolio">
+  <header class="feature-hero">
+    <div><span class="feature-kicker">PORTFOLIO INTELLIGENCE · HISTORICAL</span><h2>See where portfolio risk is concentrated.</h2><p>Estimate volatility, drawdown, concentration, correlation, and each holding’s contribution to total risk.</p></div>
+    <div class="feature-hero-note"><b>Before running</b><span>Weights should represent the portfolio you want to evaluate.</span></div>
+  </header>
+  <section class="feature-command-card">
+    <div class="feature-section-heading"><div><span>01</span><h3>Build the portfolio</h3></div><p>Add holdings and set the percentage weight for each one.</p></div>
+    <div id="portfolioRows" class="portfolio-rows">
+      <div class="grid3 portfolio-row"><label>Company<input class="portfolio-company" placeholder="FPT"></label><label>Weight %<input class="portfolio-weight" type="number" value="50" min="0" max="100" step="0.1"></label><button type="button" class="secondary remove-portfolio" data-action="remove-portfolio">Remove</button></div>
+      <div class="grid3 portfolio-row"><label>Company<input class="portfolio-company" placeholder="CMG"></label><label>Weight %<input class="portfolio-weight" type="number" value="50" min="0" max="100" step="0.1"></label><button type="button" class="secondary remove-portfolio" data-action="remove-portfolio">Remove</button></div>
+    </div>
+    <div class="feature-actions portfolio-actions"><button type="button" class="feature-secondary" data-action="add-portfolio">Add holding</button><button type="button" class="feature-primary" data-action="portfolio-risk">Analyze portfolio risk</button></div>
+  </section>
+  <div id="portfolioOut" class="feature-output" aria-live="polite"></div>
+</section>
+
+<section id="watchlist" class="view feature-view feature-view-watchlist">
+  <header class="feature-hero watchlist-hero">
+    <div><span class="feature-kicker">PRIVATE MONITOR · WATCHLIST</span><h2>Track what changed after your research.</h2><p>Monitor valuation thresholds, material fair-value changes, and new reporting evidence separately for your account.</p></div>
+    <button type="button" class="feature-secondary" data-action="watchlist-refresh">Refresh monitor</button>
+  </header>
+  <div class="watchlist-workspace">
+    <section class="feature-section-card watchlist-panel"><div class="watchlist-section-head"><div><span class="feature-kicker">PERSONAL WATCHLIST</span><h3>Companies you are monitoring</h3></div><span id="watchlistCount" class="feature-chip">0 companies</span></div><div id="watchlistItems"><div class="watchlist-empty">Loading your watchlist…</div></div></section>
+    <section class="feature-section-card alert-panel"><div class="watchlist-section-head"><div><span class="feature-kicker">SMART ALERTS</span><h3>What changed</h3></div><button type="button" class="feature-text-button" data-action="alerts-read-all">Mark all read</button></div><div id="watchlistAlerts"><div class="watchlist-empty">Loading alerts…</div></div></section>
+  </div>
+  <section class="feature-section-card valuation-history-panel"><div class="watchlist-section-head"><div><span class="feature-kicker">VALUATION HISTORY</span><h3 id="valuationHistoryTitle">Select a watched company</h3></div><span class="feature-chip">Account private</span></div><div id="valuationHistoryOut"><div class="watchlist-empty">Open a company from your watchlist to compare its saved valuation snapshots.</div></div></section>
+</section>
+
+<section id="guardian" class="view feature-view feature-view-guardian">
+  <header class="feature-hero">
+    <div><span class="feature-kicker">MODEL GOVERNANCE · COVERAGE</span><h2>Know when the model should stay quiet.</h2><p>Review library coverage and the reasons a model is available, limited, or withheld. Missing data remains missing—not a prediction.</p></div>
+    <div class="feature-hero-note"><b>Guardian rule</b><span>Transparency takes priority over a confident-looking answer.</span></div>
+  </header>
+  <section class="feature-section-card"><div id="guardianOut" aria-live="polite"></div></section>
+</section>
+
+<section id="systemHealth" class="view feature-view feature-view-health">
+  <div id="systemHealthOut" class="feature-output feature-output-flush" aria-live="polite"><div class="feature-loading-state">Loading workspace health…</div></div>
+</section>
+
+</main>
+<script nonce="{{ csp_nonce }}">window.SolvAIBootstrap={user:{{ current_user|tojson }},csrfToken:{{ csrf_token|tojson }},appVersion:{{ app_version|tojson }}};</script>
+<script src="/static/app.js?v={{ app_version }}"></script>
+<script src="/static/risk-workspace.js?v={{ app_version }}"></script>
+<script src="/static/company-full-workspace.js?v={{ app_version }}"></script>
+<script src="/static/dashboard-macro.js?v={{ app_version }}"></script>
+<script src="/static/valuation-workspace.js?v={{ app_version }}"></script>
+<script src="/static/position-sizing-workspace.js?v={{ app_version }}"></script>
+</body>
+</html>

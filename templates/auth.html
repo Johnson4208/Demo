@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Sign in — SolvAI Financial Intelligence</title>
+  <link rel="stylesheet" href="/static/auth.css?v={{ app_version }}">
+  <link rel="stylesheet" href="/static/account-refresh.css?v={{ app_version }}">
+  <link rel="stylesheet" href="/static/account-workspace.css?v={{ app_version }}">
+</head>
+<body class="auth-page" data-default-tab="{{ 'register' if first_account and registration_enabled else 'login' }}" data-next="{{ next_url }}">
+  <main class="auth-card" aria-labelledby="authTitle">
+    <section class="auth-story" aria-label="About Financial AI">
+      <div class="auth-story-shade" aria-hidden="true"></div>
+      <div class="auth-brand"><span class="auth-logo">FA</span><span><strong>Financial AI</strong><small>Evidence-led research workspace</small></span></div>
+      <div class="auth-story-copy">
+        <span class="auth-kicker">PRIVATE RESEARCH WORKSPACE</span>
+        <h1>Make the evidence easier to act on.</h1>
+        <p>One workspace for company research, market context, valuation, risk, and accountable forecasts.</p>
+        <div class="auth-benefits" aria-label="Workspace principles">
+          <div><span>01</span><p><b>Evidence before conclusions</b><small>See what supports an answer and what is still missing.</small></p></div>
+          <div><span>02</span><p><b>Risk beside opportunity</b><small>Keep uncertainty visible throughout the decision.</small></p></div>
+          <div><span>03</span><p><b>Private by default</b><small>Your watchlist, sessions, and account activity stay separated.</small></p></div>
+        </div>
+      </div>
+      <div class="auth-trust"><span>ACCOUNT SECURITY</span><p><b>Your password cannot be viewed.</b><small>Only a salted one-way hash is retained.</small></p></div>
+    </section>
+
+    <section class="auth-form-panel">
+      <div class="auth-mobile-brand"><span class="auth-logo">FA</span><strong>Financial AI</strong></div>
+      <div class="auth-form-wrap">
+        <span class="auth-kicker">WORKSPACE ACCESS</span>
+        <h2 id="authTitle">Continue your research.</h2>
+        <p class="auth-intro">Sign in with your workspace account. New users can request access for an administrator to review.</p>
+
+        {% if first_account %}
+        <div class="setup-note"><span>First-time setup</span><p>Submit the first access request, then approve it with the configured workspace administrator account.</p></div>
+        {% endif %}
+
+        <div class="auth-tabs" role="tablist" aria-label="Account access">
+          <button id="loginTab" type="button" role="tab" aria-controls="loginForm" aria-selected="{{ 'false' if first_account and registration_enabled else 'true' }}" data-auth-tab="login">Sign in</button>
+          {% if registration_enabled %}<button id="registerTab" type="button" role="tab" aria-controls="registerForm" aria-selected="{{ 'true' if first_account else 'false' }}" data-auth-tab="register">Request access</button>{% endif %}
+        </div>
+
+        <div id="authStatus" class="auth-status" role="alert" aria-live="polite" hidden></div>
+
+        <form id="loginForm" class="auth-form" data-auth-form="login" {% if first_account and registration_enabled %}hidden{% endif %} novalidate>
+          <label class="auth-field">
+            <span>Email address</span>
+            <span class="auth-input"><input id="loginEmail" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" required></span>
+          </label>
+          <label class="auth-field">
+            <span>Password</span>
+            <span class="auth-input"><input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="password-toggle" type="button" data-password-toggle="loginPassword" aria-label="Show password">Show</button></span>
+          </label>
+          <div class="auth-options">
+            <label class="remember"><input id="loginRemember" type="checkbox"><span>Keep me signed in for 7 days</span></label>
+            <span class="access-help">Need access? Contact your workspace admin.</span>
+          </div>
+          <button class="auth-submit" type="submit"><span>Sign in securely</span><span aria-hidden="true">→</span></button>
+        </form>
+
+        {% if registration_enabled %}
+        <form id="registerForm" class="auth-form" data-auth-form="register" {% if not first_account %}hidden{% endif %} novalidate>
+          <label class="auth-field">
+            <span>Your name</span>
+            <span class="auth-input"><input id="registerName" name="display_name" autocomplete="name" placeholder="Your full name" minlength="2" maxlength="80" required></span>
+          </label>
+          <label class="auth-field">
+            <span>Email address</span>
+            <span class="auth-input"><input id="registerEmail" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" required></span>
+          </label>
+          <label class="auth-field">
+            <span>Create password</span>
+            <span class="auth-input"><input id="registerPassword" name="password" type="password" autocomplete="new-password" placeholder="At least 12 characters" minlength="12" required><button class="password-toggle" type="button" data-password-toggle="registerPassword" aria-label="Show password">Show</button></span>
+            <small class="password-rule">Use 12+ characters with uppercase, lowercase, and a number.</small>
+          </label>
+          <label class="auth-field">
+            <span>Confirm password</span>
+            <span class="auth-input"><input id="registerConfirm" name="confirm_password" type="password" autocomplete="new-password" placeholder="Repeat your password" required></span>
+          </label>
+          <label class="auth-field">
+            <span>Reason for access <small>Optional</small></span>
+            <span class="auth-input auth-textarea"><textarea id="registerNote" name="request_note" maxlength="500" rows="3" placeholder="For example: company research and report review"></textarea></span>
+          </label>
+          <p class="registration-consent">Your account stays inactive until an administrator reviews this request.</p>
+          <button class="auth-submit" type="submit"><span>Send access request</span><span aria-hidden="true">→</span></button>
+        </form>
+
+        <p class="auth-privacy"><b>What the administrator can review:</b> your name, email, reason, and request time. Your password remains private and cannot be displayed.</p>
+        {% else %}
+        <p class="auth-privacy">Registration is closed. Ask the workspace administrator to create or enable an account.</p>
+        {% endif %}
+      </div>
+      <footer><span>SolvAI {{ app_version }}</span><span>Private · role-based · local workspace</span></footer>
+    </section>
+  </main>
+  <script src="/static/auth.js?v={{ app_version }}"></script>
+</body>
+</html>

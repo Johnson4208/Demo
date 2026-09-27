@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Access center — SolvAI</title>
+  <link rel="stylesheet" href="/static/admin.css?v={{ app_version }}">
+  <link rel="stylesheet" href="/static/account-refresh.css?v={{ app_version }}">
+  <link rel="stylesheet" href="/static/account-workspace.css?v={{ app_version }}">
+</head>
+<body class="admin-page">
+  <aside class="admin-sidebar">
+    <a class="admin-brand" href="/"><span>FA</span><p><b>Financial AI</b><small>Protected workspace</small></p></a>
+    <nav aria-label="Administration">
+      <a class="active" href="/admin/users"><span>01</span>Access center</a>
+      <a href="/account/security"><span>02</span>My security</a>
+      <a href="/"><span>03</span>Research workspace</a>
+    </nav>
+    <div class="admin-sidebar-note"><b>Privacy boundary</b><p>Passwords are never displayed. Network addresses are represented by short, non-reversible identifiers.</p></div>
+  </aside>
+  <main>
+    <header class="admin-header">
+      <div><span class="eyebrow">WORKSPACE ADMINISTRATION</span><h1>Access center</h1><p>Review requests, assign the minimum role needed, and monitor account access from one place.</p></div>
+      <div class="admin-profile"><span>{{ current_user.display_name[:1]|upper }}</span><p><b>{{ current_user.display_name }}</b><small>{{ current_user.email }}</small></p></div>
+    </header>
+    <div id="adminStatus" class="admin-alert" role="status" aria-live="polite" hidden></div>
+
+    <section class="admin-stats" aria-label="Account summary">
+      <article><span>Registered</span><strong>{{ users|length }}</strong><small>Workspace accounts</small></article>
+      <article><span>Active</span><strong>{{ users|selectattr('is_active')|list|length }}</strong><small>Permitted now</small></article>
+      <article><span>Pending requests</span><strong>{{ pending_requests|length }}</strong><small>Awaiting review</small></article>
+      <article><span>Live sessions</span><strong>{{ users|sum(attribute='active_session_count') }}</strong><small>Revocable access</small></article>
+      <article><span>Failed attempts</span><strong>{{ users|sum(attribute='failed_login_count') }}</strong><small>Current counters</small></article>
+    </section>
+
+    <section class="role-guide" aria-labelledby="roleGuideTitle">
+      <div><span class="eyebrow">PERMISSION GUIDE</span><h2 id="roleGuideTitle">Three roles, clearly separated</h2></div>
+      <dl><div><dt>Viewer</dt><dd>Research, compare, value, and monitor.</dd></div><div><dt>Editor</dt><dd>Viewer access plus report upload and indexing.</dd></div><div><dt>Administrator</dt><dd>Editor access plus account and session controls.</dd></div></dl>
+    </section>
+
+    <section class="admin-card approval-card" id="accessRequests">
+      <div class="card-heading"><div><span class="eyebrow">01 · APPROVAL QUEUE</span><h2>Pending access requests</h2><p>Confirm the identity and purpose, choose the minimum required role, then approve or reject.</p></div><span class="count-chip pending-chip">{{ pending_requests|length }} pending</span></div>
+      <div class="approval-list">
+      {% for item in pending_requests %}
+        <article class="approval-request" data-access-request-id="{{ item.id }}">
+          <div class="request-identity"><span>{{ item.display_name[:1]|upper }}</span><p><b>{{ item.display_name }}</b><small>{{ item.email }}</small><em>Requested {{ item.created_at[:16]|replace('T',' ') if item.created_at else '—' }}</em></p></div>
+          <div class="request-reason"><span>Reason</span><p>{{ item.request_note or 'No reason was provided.' }}</p><small>{{ item.user_agent or 'Unknown device' }} · Network {{ item.network_hash or '—' }}</small></div>
+          <label class="request-role"><span>Approved role</span><select aria-label="Approved role for {{ item.display_name }}"><option value="viewer">Viewer</option><option value="editor">Editor</option></select></label>
+          <label class="request-decision-note"><span>Private decision note</span><input maxlength="500" placeholder="Optional audit note"></label>
+          <div class="request-actions"><button type="button" class="approve" data-request-action="approve">Approve access</button><button type="button" class="reject" data-request-action="reject">Reject</button></div>
+        </article>
+      {% else %}
+        <div class="approval-empty"><span>✓</span><div><b>No requests are waiting</b><p>New registration requests will appear here automatically.</p></div></div>
+      {% endfor %}
+      </div>
+      <p class="form-note">Approval creates an active account using the requester’s existing password hash. The password itself is never available to administrators.</p>
+    </section>
+
+    <section class="admin-card create-card">
+      <div class="card-heading"><div><span class="eyebrow">02 · CONTROLLED ONBOARDING</span><h2>Create a workspace account</h2><p>Assign least-privilege access now; the user can change their password after signing in.</p></div><span class="privacy-chip">Admin only</span></div>
+      <form id="createUserForm" class="create-grid">
+        <label><span>Name</span><input name="display_name" autocomplete="off" placeholder="Research analyst" required></label>
+        <label><span>Email</span><input name="email" type="email" autocomplete="off" placeholder="analyst@company.com" required></label>
+        <label><span>Temporary password</span><input name="password" type="password" autocomplete="new-password" minlength="12" placeholder="12+ characters" required></label>
+        <label><span>Role</span><select name="role"><option value="viewer">Viewer</option><option value="editor">Editor</option><option value="admin">Administrator</option></select></label>
+        <button class="primary-action" type="submit">Create account <span>→</span></button>
+      </form>
+      <p class="form-note">Viewer can research. Editor can also upload and re-index reports. Administrator can manage access.</p>
+    </section>
+
+    <section class="admin-card">
+      <div class="card-heading"><div><span class="eyebrow">03 · ACCOUNT DIRECTORY</span><h2>Registered users</h2><p>Change roles, revoke sessions, or pause access without exposing credentials.</p></div><span class="privacy-chip">No password access</span></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>User</th><th>Role</th><th>Status</th><th>Last login</th><th>Sessions</th><th>Controls</th></tr></thead>
+          <tbody>
+          {% for user in users %}
+            <tr data-user-id="{{ user.id }}">
+              <td><div class="user-cell"><span>{{ user.display_name[:1]|upper }}</span><p><b>{{ user.display_name }}</b><small>{{ user.email }}</small><em>Joined {{ user.created_at[:10] if user.created_at else '—' }}</em></p></div></td>
+              <td><select class="role-select" aria-label="Role for {{ user.display_name }}" {% if user.id == current_user.id %}disabled{% endif %}><option value="viewer" {% if user.role == 'viewer' %}selected{% endif %}>Viewer</option><option value="editor" {% if user.role == 'editor' %}selected{% endif %}>Editor</option><option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrator</option></select></td>
+              <td><span class="status {{ 'active' if user.is_active else 'inactive' }}">{{ 'Active' if user.is_active else 'Inactive' }}</span>{% if user.must_reset_password %}<small class="reset-flag">Password reset required</small>{% endif %}{% if user.locked_until %}<small class="locked-flag">Locked</small>{% endif %}</td>
+              <td>{{ user.last_login_at[:16]|replace('T',' ') if user.last_login_at else 'Never' }}<small class="subtle">{{ user.login_count }} successful</small></td>
+              <td>{{ user.active_session_count }}<small class="subtle">active</small></td>
+              <td><div class="action-row">
+                {% if user.id != current_user.id %}<button data-action="{{ 'deactivate' if user.is_active else 'activate' }}">{{ 'Deactivate' if user.is_active else 'Activate' }}</button>{% endif %}
+                <button data-action="revoke_sessions">Sign out</button>
+                <button data-action="require_password_reset">Require reset</button>
+                {% if user.locked_until %}<button data-action="unlock">Unlock</button>{% endif %}
+                {% if not user.is_active and user.id != current_user.id %}<button class="danger" data-action="delete">Remove</button>{% endif %}
+              </div></td>
+            </tr>
+          {% else %}<tr><td colspan="6" class="empty">No accounts have been registered.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="admin-two-column">
+      <section class="admin-card">
+        <div class="card-heading"><div><span class="eyebrow">04 · SECURITY ACTIVITY</span><h2>Recent sign-ins</h2></div><span class="count-chip">{{ events|length }}</span></div>
+        <div class="event-list">
+        {% for event in events %}
+          <article><span class="event-mark {{ event.event }}"></span><p><b>{{ event.email }}</b><small>{{ event.event|replace('_',' ')|title }} · {{ event.user_agent or 'Unknown device' }}</small></p><time>{{ event.occurred_at[:16]|replace('T',' ') }}<small>Network {{ event.network_hash or '—' }}</small></time></article>
+        {% else %}<p class="empty">No account activity has been recorded.</p>{% endfor %}
+        </div>
+      </section>
+      <section class="admin-card">
+        <div class="card-heading"><div><span class="eyebrow">05 · ADMIN AUDIT</span><h2>Access changes</h2></div><span class="count-chip">{{ audits|length }}</span></div>
+        <div class="event-list">
+        {% for audit in audits %}
+          <article><span class="event-mark admin-change"></span><p><b>{{ audit.action|replace('_',' ')|title }}</b><small>{{ audit.actor_email or 'System' }} → {{ audit.target_email or 'Removed account' }}</small></p><time>{{ audit.occurred_at[:16]|replace('T',' ') }}<small>{{ audit.detail or '' }}</small></time></article>
+        {% else %}<p class="empty">No administrator changes have been recorded.</p>{% endfor %}
+        </div>
+      </section>
+    </div>
+  </main>
+  <script src="/static/admin.js?v={{ app_version }}"></script>
+</body>
+</html>

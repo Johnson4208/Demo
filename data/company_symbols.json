@@ -1,0 +1,24 @@
+{
+  "companies": [
+    {
+      "company": "FPT",
+      "symbol": "FPT.VN",
+      "aliases": ["FPT Corporation"]
+    },
+    {
+      "company": "PNJ",
+      "symbol": "PNJ.VN",
+      "aliases": ["Phu Nhuan Jewelry"]
+    },
+    {
+      "company": "CMG",
+      "symbol": "CMG.VN",
+      "aliases": ["CMC", "CMC Corporation"]
+    },
+    {
+      "company": "VNG",
+      "symbol": "VNZ.VN",
+      "aliases": ["VNZ", "VNG Corporation"]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+# Add the environment + volume below to your EXISTING SolvAI web service.
+# The volume name is unique, so it will not collide with another Docker project.
+# Do not define a second web service if you already have one.
+
+services:
+  web:
+    environment:
+      SOLVAI_DATA_DIR: /data
+    volumes:
+      - solvai_financial_data:/data
+
+volumes:
+  solvai_financial_data:
+    name: solvai_financial_data

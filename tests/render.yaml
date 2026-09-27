@@ -1,0 +1,50 @@
+services:
+  - type: web
+    name: solvai-financial-ai
+    runtime: docker
+    region: singapore
+    plan: 1c-2g
+    numInstances: 1
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/ready
+    autoDeployTrigger: off
+    disk:
+      name: solvai-data
+      mountPath: /data
+      sizeGB: 5
+    envVars:
+      - key: SOLVAI_ENV
+        value: production
+      - key: SOLVAI_DATA_DIR
+        value: /data
+      - key: SOLVAI_SYMBOL_REGISTRY
+        value: /data/company_symbols.json
+      - key: SOLVAI_SECURE_COOKIES
+        value: "1"
+      - key: SOLVAI_TRUST_PROXY
+        value: "1"
+      - key: SOLVAI_PROXY_HOPS
+        value: "1"
+      - key: SOLVAI_ALLOW_REGISTRATION
+        value: "0"
+      - key: SOLVAI_OLLAMA_ENABLED
+        value: "0"
+      - key: SOLVAI_REQUEST_TIMEOUT
+        value: "180"
+      - key: SOLVAI_MAX_UPLOAD_MB
+        value: "80"
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: SOLVAI_THREADS
+        value: "8"
+      - key: TZ
+        value: Asia/Ho_Chi_Minh
+      - key: SOLVAI_SECRET_KEY
+        generateValue: true
+      - key: SOLVAI_ADMIN_EMAIL
+        sync: false
+      - key: SOLVAI_ADMIN_PASSWORD
+        sync: false
+      - key: SOLVAI_ADMIN_NAME
+        value: Workspace Admin

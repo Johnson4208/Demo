@@ -1,0 +1,49 @@
+name: solvai_v21_secure
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SOLVAI_DATA_DIR: /data
+      SOLVAI_SYMBOL_REGISTRY: ${SOLVAI_SYMBOL_REGISTRY:-/data/company_symbols.json}
+      SOLVAI_ENV: development
+      SOLVAI_HOST: 0.0.0.0
+      SOLVAI_PORT: 5000
+      SOLVAI_SECRET_KEY: ${SOLVAI_SECRET_KEY:-}
+      SOLVAI_ADMIN_EMAIL: ${SOLVAI_ADMIN_EMAIL:-}
+      SOLVAI_ADMIN_PASSWORD: ${SOLVAI_ADMIN_PASSWORD:-}
+      SOLVAI_ADMIN_NAME: ${SOLVAI_ADMIN_NAME:-Workspace Admin}
+      SOLVAI_ALLOW_REGISTRATION: ${SOLVAI_ALLOW_REGISTRATION:-1}
+      SOLVAI_SECURE_COOKIES: ${SOLVAI_SECURE_COOKIES:-0}
+      SOLVAI_OLLAMA_ENABLED: ${SOLVAI_OLLAMA_ENABLED:-1}
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+    volumes:
+      - solvai_financial_data:/data
+      # Legacy project data is mounted read-only for one-time migration only.
+      # It is excluded from the image build context, so reports never get
+      # transferred into Docker layers.
+      - ./reports:/seed/reports:ro
+      - ./storage:/seed/storage:ro
+    ports:
+      - "${SOLVAI_PORT:-8080}:5000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/api/ready', timeout=4).read()"
+      interval: 15s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
+
+volumes:
+  solvai_financial_data:
+    name: solvai_financial_data
